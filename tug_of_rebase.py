@@ -1,3 +1,4 @@
+from collections import defaultdict
 
 
 class TugOfRebase():
@@ -11,8 +12,8 @@ class TugOfRebase():
         self.total_supply = 0
         self.long_total = 0
         self.short_total = 0
-        self.long_balance = {}  # address : balance
-        self.short_balance = {}
+        self.long_balance = defaultdict(float)  # address : balance
+        self.short_balance = defaultdict(float)
         self.rebase_count = 0
         self.lock_number = 0
         self.last_token_supply = 0
@@ -39,17 +40,43 @@ class TugOfRebase():
         # set rebase numbers
         pass
     #
-    def depositShort(self, ctx):
-        pass
+    def depositShort(self, ctx, amount):
+        self._deposit(ctx, amount, False)
     #
-    def depositLong(self, ctx):
-        pass
+    def depositLong(self, ctx, amount):
+        self._deposit(ctx, amount, True)
     #
-    def claimShort(self, ctx):
+    def _deposit(self, ctx, amount, isLong = True):
+        # Transfer to contract
+        result = ctx.AR[self.token_contract].transfer(ctx, amount, self.address)
+        if result:
+            # Validate supply matches expectation
+            local_supply =ctx.AR[self.token_contract].getBalance(self.address)
+            if local_supply - amount = self.total_supply:
+                # Update local balance
+                if isLong:
+                    self.long_balance[ctx.sender] += amount
+                else:
+                    self.short_balance[ctx.sender] += amount
+            else:
+                return False
+        else:
+            return False
+    #
+    def claimShort(self, ctx, amount):
+
         pass
     #
     def claimLong(self, ctx):
         pass
+    #
+    def _claim(self, ctx, amount, isLong = True):
+        pass
+    #
+    def _getNewLongBalance(self, address):
+        old_bal = self.long_balance[address]
+        old_bal / self.
+
     #
     def _calcRebaseDiff(self, ctx):
         return self._calcRebaseSize(ctx) - (0.9 * self.last_rebase_size)
@@ -94,13 +121,3 @@ class TugOfRebase():
             print("Could not calc adjust. Balances did not sync")
             print(new - (long + short))
             return False
-    #
-    # def _calcLongAdjust(self):
-    #     new_total = self.long_total
-    #     new_total *= (1 + self._rebase_size())
-    #     if self._didLongWin():
-    #         return {'new_total': new_total, 'tribute': 0}
-    #     else:
-    #         adj_rebase = self.last_rebase_size / self._calcRebaseSize()
-    #         adj_new_total = new_total *
-    #         return {'new_total': new_total, 'tribute': 0}

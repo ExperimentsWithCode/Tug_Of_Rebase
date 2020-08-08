@@ -1,12 +1,13 @@
 from collections import defaultdict
 import pdb
+
 class SampleAmple():
     def __init__(self, ctx, name, symbol):
         self.name = name
         self.symbol = symbol
         self.total_supply = 0
         self.balances = defaultdict(float)  # address : balance # Really percent of supply
-        self.allowances = {} # main address { allowed address: amount}
+        self.allowances = defaultdict(float) # main address { allowed address: amount}
         self.admin = ctx.sender
         self.address = ctx.AR.register(self)
 
